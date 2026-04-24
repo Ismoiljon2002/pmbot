@@ -59,27 +59,26 @@ class HikvisionClient {
   async addFace(employeeNo, imageBuffer) {
     const form = new FormData();
 
-    // Hikvision expects the JSON part wrapped in { FaceDataRecord: { ... } }
     const faceDataRecord = {
-      FaceDataRecord: {
-        faceLibType: 'blackFD',
-        FDID: '1',
-        FPID: employeeNo.toString(),
-      },
+      faceLibType: 'blackFD',
+      FDID: '1',
+      FPID: employeeNo.toString(),
     };
 
     form.append('FaceDataRecord', JSON.stringify(faceDataRecord), {
-      filename: 'FaceDataRecord',
-      contentType: 'application/json; charset=UTF-8',
+      contentType: 'application/json',
     });
+
     form.append('FaceImage', imageBuffer, {
       filename: `${employeeNo}.jpg`,
       contentType: 'image/jpeg',
     });
 
+    const bodyBuffer = form.getBuffer();
+
     const res = await this.rawFetch('/Intelligent/FDLib/FaceDataRecord?format=json', {
       method: 'POST',
-      body: form,
+      body: bodyBuffer,
       headers: form.getHeaders(),
     });
 

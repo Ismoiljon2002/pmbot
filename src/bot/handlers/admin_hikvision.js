@@ -110,7 +110,7 @@ module.exports = (bot) => {
             if (imageBuffer) {
               await enterCamera.addFace(employeeNo, imageBuffer).catch((e) => {
                 faceErrors.push(
-                  `❌ ${studentName} (ID: ${employeeNo}) Enter kamera yuzi: ${e.message}`
+                  `❌ ${studentName} (ID: ${employeeNo}) Kirish kamera yuzi: ${e.message}`
                 );
               });
             }
