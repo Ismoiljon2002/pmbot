@@ -85,6 +85,7 @@ module.exports = (bot) => {
       {
         reply_markup: {
           inline_keyboard: [
+            [{ text: 'Assign ADMIN', callback_data: `assign_role_${telegramId}_ADMIN` }],
             [
               { text: 'Assign TEACHER', callback_data: `assign_role_${telegramId}_TEACHER` },
               { text: 'Assign TUTOR', callback_data: `assign_role_${telegramId}_TUTOR` },

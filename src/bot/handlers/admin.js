@@ -1,4 +1,3 @@
-const { importStudents } = require('../../services/user');
 const auth = require('../../middlewares/auth');
 const role = require('../../middlewares/roles');
 const ROLES = require('../../constants/roles');
@@ -12,10 +11,6 @@ module.exports = (bot) => {
     for (let i = 0; i < arr.length; i += size) res.push(arr.slice(i, i + size));
     return res;
   };
-
-  bot.hears('/import_students', auth, role(ROLES.ADMIN), async (ctx) => {
-    ctx.reply('Send student list in format:\nClass, Name, Table');
-  });
 
   bot.hears('/create_class', auth, role(ROLES.ADMIN), async (ctx) => {
     ctx.reply('To create an empty class, reply exactly like this:\nCREATE_CLASS: ClassName');
@@ -98,6 +93,18 @@ module.exports = (bot) => {
     const studentId = ctx.match[1];
     const deleted = await Student.findByIdAndDelete(studentId);
     if (deleted) {
+      // Sync delete with Hikvision cameras
+      try {
+        const { getCameras } = require('../../services/hikvision');
+        const { enterCamera, exitCamera } = getCameras();
+        if (deleted.employeeNo) {
+          if (enterCamera) enterCamera.deleteUser(deleted.employeeNo).catch(console.error);
+          if (exitCamera) exitCamera.deleteUser(deleted.employeeNo).catch(console.error);
+        }
+      } catch (err) {
+        console.error('Hikvision Delete Hook Error:', err);
+      }
+
       await ctx.answerCbQuery('Student deleted!');
       await ctx.editMessageText(`Student ${deleted.name} has been permanently deleted.`);
     } else {
@@ -185,16 +192,6 @@ module.exports = (bot) => {
       if (existing) return ctx.reply('Class already exists!');
       await Class.create({ name: className });
       return ctx.reply(`Class ${className} created successfully!`);
-    }
-
-    if (text.includes(',')) {
-      try {
-        const result = await importStudents(text);
-        return ctx.reply(`Imported: ${result.length} students`);
-      } catch (err) {
-        console.error(err);
-        return ctx.reply('Import failed');
-      }
     }
 
     return next();

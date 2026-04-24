@@ -1,6 +1,7 @@
 const { Telegraf, session } = require('telegraf');
 const startHandler = require('./handlers/start');
 const adminHandler = require('./handlers/admin');
+const adminHikvisionHandler = require('./handlers/admin_hikvision');
 const roleHandler = require('./handlers/role');
 const attendanceHandler = require('./handlers/attendance');
 const medicHandler = require('./handlers/medic');
@@ -13,6 +14,7 @@ bot.use(session());
 
 startHandler(bot);
 adminHandler(bot);
+adminHikvisionHandler(bot);
 roleHandler(bot);
 attendanceHandler(bot);
 medicHandler(bot);

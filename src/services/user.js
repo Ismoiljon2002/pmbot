@@ -52,3 +52,7 @@ exports.importStudents = async (text) => {
 
   return results;
 };
+
+async function getUserByEmployeeId(employeeId) {
+  return User.findOne({ where: { employeeId } });
+}

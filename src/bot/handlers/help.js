@@ -17,6 +17,8 @@ module.exports = (bot) => {
       helpText += `/rename_class - Rename an existing class interactively\n`;
       helpText += `/clear - Clear recent bot chat history\n`;
       helpText += `/report - Generate attendance report for any date\n`;
+      helpText += `/import_students - Import students via ZIP (Excel + rasmlar)\n`;
+      helpText += `/weekend_report DD.MM.YYYY - Juma/Yakshanba kirish-chiqish hisoboti\n`;
     } else if (role === ROLES.TEACHER || role === ROLES.TUTOR) {
       helpText += `/attendance - Sinfingiz uchun davomat oling\n`;
     } else if (role === ROLES.MEDIC) {
@@ -40,6 +42,8 @@ module.exports = (bot) => {
       commands.push({ command: 'rename_class', description: 'Rename a class' });
       commands.push({ command: 'clear', description: 'Clear bot chat history' });
       commands.push({ command: 'report', description: 'Generate attendance report' });
+      commands.push({ command: 'import_students', description: 'Import students via ZIP' });
+      commands.push({ command: 'weekend_report', description: 'Sunday/Friday gate log report' });
     } else if (role === ROLES.TEACHER || role === ROLES.TUTOR) {
       commands.push({ command: 'attendance', description: 'Take attendance for your class' });
     } else if (role === ROLES.MEDIC) {

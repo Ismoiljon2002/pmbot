@@ -6,6 +6,11 @@ const TIMESLOTS = require('../../constants/timeslots');
 const auth = require('../../middlewares/auth');
 
 module.exports = (bot) => {
+  bot.command('count', async (ctx) => {
+    const count = await getCurrentInsideCount();
+    ctx.reply(`People inside: ${count}`);
+  });
+
   bot.command('attendance', auth, async (ctx) => {
     if (!ctx.user || (ctx.user.role !== ROLES.TEACHER && ctx.user.role !== ROLES.TUTOR)) {
       return ctx.reply('Sizga bunday huquq berilmagan.');
@@ -15,7 +20,7 @@ module.exports = (bot) => {
     ctx.session.attendance = {
       timeSlot: null,
       classId: null,
-      presentStudents: [], // Will hold ObjectIds of present students
+      presentStudents: [],
     };
 
     const isTutor = ctx.user.role === ROLES.TUTOR;
@@ -24,6 +29,7 @@ module.exports = (bot) => {
     const buttons = isTutor
       ? [[{ text: 'Nonushta (7:00)', callback_data: `slot_${TIMESLOTS.BREAKFAST}` }]]
       : [
+          [{ text: 'Tushlik 1 (11:00)', callback_data: `slot_${TIMESLOTS.LUNCH_11}` }],
           [{ text: '2-nonushta + tushlik (13:00)', callback_data: `slot_${TIMESLOTS.LUNCH}` }],
           [{ text: 'Peshinlik (16:00)', callback_data: `slot_${TIMESLOTS.SNACK}` }],
           [{ text: 'Kechki ovqat (19:00)', callback_data: `slot_${TIMESLOTS.DINNER}` }],
@@ -78,6 +84,7 @@ module.exports = (bot) => {
     const buttons = isTutor
       ? [[{ text: 'Nonushta (7:00)', callback_data: `slot_${TIMESLOTS.BREAKFAST}` }]]
       : [
+          [{ text: 'Tushlik 1 (11:00)', callback_data: `slot_${TIMESLOTS.LUNCH_11}` }],
           [{ text: 'Tushlik (13:00)', callback_data: `slot_${TIMESLOTS.LUNCH}` }],
           [{ text: 'Kechlik (16:00)', callback_data: `slot_${TIMESLOTS.SNACK}` }],
           [{ text: 'Kechki ovqat (19:00)', callback_data: `slot_${TIMESLOTS.DINNER}` }],
@@ -188,4 +195,20 @@ async function renderStudentList(ctx, students) {
     /* ignore same message error */
   }
   await ctx.answerCbQuery().catch(() => {});
+}
+
+async function getCurrentInsideCount() {
+  const records = await Attendance.findAll({
+    order: [['timestamp', 'DESC']],
+  });
+
+  const state = new Map();
+
+  for (const r of records) {
+    if (!state.has(r.userId)) {
+      state.set(r.userId, r.status);
+    }
+  }
+
+  return [...state.values()].filter((s) => s === 'IN').length;
 }
